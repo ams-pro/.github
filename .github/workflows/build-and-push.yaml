@@ -44,7 +44,7 @@ jobs:
           method: jwt
           path: github-oidc
           role: ams-pro
-          secrets: secrets/data/cicd/repository-dispatch repositoryDispatch
+          secrets: secret/data/cicd/repository-dispatch repositoryDispatch
 
       - name: Deploy new version to dev
         if: ${{ success() }}
