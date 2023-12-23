@@ -1,0 +1,55 @@
+on:
+  workflow_call:
+    inputs:
+      service_name:
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-push:
+    name: Build and Push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::560584359439:role/ci-oidc
+          aws-region: eu-central-1
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $REGISTRY/${{ inputs.service_name }}:$IMAGE_TAG .
+          docker push $REGISTRY/${{ inputs.service_name }}:$IMAGE_TAG
+
+      - name: Retrieve repository-dispatch token from Vault
+        id: import-secrets
+        uses: hashicorp/vault-action@v2.7.4
+        with:
+          url: https://vault.ams-pro.de
+          method: jwt
+          path: github-oidc
+          role: ams-pro
+          secrets: secrets/data/cicd/repository-dispatch repositoryDispatch
+
+      - name: Deploy new version to dev
+        if: ${{ success() }}
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ steps.import-secrets.outputs.repositoryDispatch }}
+          repository: ams-pro/ams-infrastructure
+          event-type: deploy
+          client-payload: '{"service": "${{ inputs.service_name }}", "tag": "${{ github.sha }}"}'
