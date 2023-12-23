@@ -44,13 +44,13 @@ jobs:
           method: jwt
           path: github-oidc
           role: ams-pro
-          secrets: secret/data/cicd/repository-dispatch repositoryDispatch
+          secrets: secret/data/cicd repository-dispatch
 
       - name: Deploy new version to dev
         if: ${{ success() }}
         uses: peter-evans/repository-dispatch@v2
         with:
-          token: ${{ steps.import-secrets.outputs.repositoryDispatch }}
+          token: ${{ steps.import-secrets.outputs.repository-dispatch }}
           repository: ams-pro/ams-infrastructure
           event-type: deploy
           client-payload: '{"service": "${{ inputs.service_name }}", "tag": "${{ github.sha }}"}'
