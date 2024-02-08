@@ -51,7 +51,7 @@ jobs:
 
       - name: Deploy new version to dev
         if: ${{ success() }}
-        uses: peter-evans/repository-dispatch@v2
+        uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ steps.import-secrets.outputs.repositoryDispatch }}
           repository: ams-pro/ams-infrastructure
