@@ -41,7 +41,7 @@ jobs:
 
       - name: Retrieve repository-dispatch token from Vault
         id: import-secrets
-        uses: hashicorp/vault-action@v2.8.0
+        uses: hashicorp/vault-action@v3.0.0
         with:
           url: https://vault.ams-pro.de
           method: jwt
