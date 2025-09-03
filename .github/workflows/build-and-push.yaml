@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: arn:aws:iam::560584359439:role/ci-oidc
           aws-region: eu-central-1
